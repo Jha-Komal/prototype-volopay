@@ -11,18 +11,18 @@ function Box({ title, sub, tone }: { title: string; sub: string; tone: "built" |
   const t = {
     built: "border-emerald-500 bg-emerald-50",
     sim: "border-violet-500 bg-violet-50 border-dashed",
-    prop: "border-zinc-400 bg-zinc-50 border-dashed",
+    prop: "border-slate-400 bg-slate-50 border-dashed",
   }[tone];
   return (
     <div className={`rounded-lg border-2 p-3 text-center text-sm ${t}`}>
       <div className="font-semibold">{title}</div>
-      <div className="text-xs text-zinc-600">{sub}</div>
+      <div className="text-xs text-slate-600">{sub}</div>
     </div>
   );
 }
 
 const Arrow = ({ label }: { label: string }) => (
-  <div className="flex items-center justify-center py-1 text-xs text-zinc-500 md:py-0">↓ {label}</div>
+  <div className="flex items-center justify-center py-1 text-xs text-slate-500 md:py-0">↓ {label}</div>
 );
 
 export default function RulesPage() {
@@ -33,7 +33,7 @@ export default function RulesPage() {
         <div className="flex flex-wrap gap-2 text-xs">
           <span className="rounded border-2 border-emerald-500 bg-emerald-50 px-2 py-0.5">Built and working</span>
           <span className="rounded border-2 border-dashed border-violet-500 bg-violet-50 px-2 py-0.5">Simulated in this prototype</span>
-          <span className="rounded border-2 border-dashed border-zinc-400 bg-zinc-50 px-2 py-0.5">Proposed for production, not built</span>
+          <span className="rounded border-2 border-dashed border-slate-400 bg-slate-50 px-2 py-0.5">Proposed for production, not built</span>
         </div>
         <div className={`${card} space-y-1`}>
           <Box title="Finance user · Browser UI" sub="Invoice list, form with live hints, detail and status timeline" tone="built" />
@@ -56,7 +56,7 @@ export default function RulesPage() {
             </div>
           </div>
         </div>
-        <ul className="list-disc space-y-1 pl-5 text-sm text-zinc-700">
+        <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
           <li><b>Where validation happens:</b> (1) in the browser while typing, for quick hints; (2) on the Volopay API before anything is sent, which is the authoritative pass; (3) at the provider after sending (simulated P-rules).</li>
           <li><b>How status returns:</b> the provider response is stored as a status event with its code and message, and the invoice page shows it in the timeline. Only invoices that passed the server check can be submitted.</li>
           <li><b>Built vs proposed:</b> UI, checks, status timeline and the swappable adapter are built. Storage is a browser stand-in. The provider is simulated. The ERP link and tax authority are not built.</li>
@@ -65,7 +65,7 @@ export default function RulesPage() {
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Rules panel</h2>
-        <p className="text-sm text-zinc-600">
+        <p className="text-sm text-slate-600">
           Each rule is marked <b>sourced</b> (backed by a public source, but not yet confirmed against the official UAE FTA or Ministry of Finance text), <b>assumed</b> (invented for the demo) or <b>simulated</b> (a provider behaviour made up for the demo). Nothing here should be treated as official UAE guidance.
         </p>
         <div className="space-y-3">
@@ -75,10 +75,10 @@ export default function RulesPage() {
                 <span className="font-mono text-sm font-semibold">{r.id}</span>
                 <span className="text-sm font-medium">{r.title}</span>
                 <span className={`rounded-full px-2 py-0.5 text-xs ${BASIS[r.basis]}`}>{r.basis}</span>
-                <span className="text-xs text-zinc-500">{r.layer}</span>
+                <span className="text-xs text-slate-500">{r.layer}</span>
               </div>
               <p className="mt-1 text-sm">{r.detail}</p>
-              <p className="mt-1 text-xs text-zinc-600">{r.note}{" "}
+              <p className="mt-1 text-xs text-slate-600">{r.note}{" "}
                 {r.source && <a className="text-blue-700 underline" href={r.source.href} target="_blank" rel="noreferrer">{r.source.label}</a>}
               </p>
             </div>

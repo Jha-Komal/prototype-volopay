@@ -63,6 +63,15 @@ export interface ProviderResponse {
   respondedAt: string;
 }
 
+export interface Payment {
+  amount: number;
+  paidAt: string;
+  reference: string;
+  /** Result of matching the payment against the invoice total. */
+  outcome: "matched" | "short" | "over";
+  difference: number;
+}
+
 export interface Invoice {
   id: string;
   number: string;
@@ -76,6 +85,36 @@ export interface Invoice {
   events: StatusEvent[];
   lastCheck?: CheckResult;
   providerResponse?: ProviderResponse;
+  payment?: Payment;
+  /** Where the invoice came from, shown in the UI. */
+  origin?: "manual" | "csv-import";
+}
+
+export interface PurchaseOrder {
+  number: string;
+  supplierTrn: string;
+  supplierName: string;
+  amount: number;
+}
+
+export interface MatchCheck {
+  id: string;
+  label: string;
+  pass: boolean;
+  detail: string;
+}
+
+export interface IncomingInvoice {
+  id: string;
+  number: string;
+  receivedAt: string;
+  supplier: Party;
+  poNumber: string;
+  description: string;
+  net: number;
+  vat: number;
+  status: "received" | "approved" | "rejected";
+  decisionNote?: string;
 }
 
 export interface CheckContext {

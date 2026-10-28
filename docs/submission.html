@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Volopay e-invoicing prototype: submission</title>
+<style>
+body{font:11pt/1.45 Arial,Helvetica,sans-serif;color:#14181f;margin:0}
+h1{font-size:20pt;margin:0 0 4pt}h2{font-size:13pt;margin:16pt 0 4pt;border-bottom:1px solid #ccd;padding-bottom:2pt}
+table{border-collapse:collapse;width:100%;font-size:9.5pt}td,th{border:1px solid #ccd;padding:4pt 6pt;text-align:left;vertical-align:top}th{background:#eef}
+.link{font-size:14pt;font-weight:bold;background:#eef;padding:8pt 10pt;border-radius:6pt}
+.todo{background:#fff3cd;padding:0 3pt}
+</style></head><body>
+<h1>Volopay e-invoicing prototype (UAE)</h1>
+<p>Challenge 3 of the Founder's Office assignment. Everything that touches a provider, tax authority or accounting tool is <b>simulated</b>.</p>
+
+<h2>1. Live prototype</h2>
+<p class="link">Open the prototype: <a href="LIVE_URL_HERE"><span class="todo">LIVE_URL_HERE</span></a></p>
+<p>Source code: <a href="https://github.com/Jha-Komal/prototype-volopay">github.com/Jha-Komal/prototype-volopay</a>. It opens in a browser with no download or setup. Use <b>Reset sample data</b> on the Invoices page to start again. Demo path: INV-1001 (happy path), INV-1002 (blocked by V-01, fix the TRN in the editor), INV-1003 (blocked by V-02 and V-03, one-click fixes), INV-0999 (rejected, DUPLICATE_INVOICE), INV-1005 (rejected, BUYER_NOT_FOUND). After an invoice is accepted, record a payment on its page to see matching.</p>
+
+<h2>2. Architecture</h2>
+<svg viewBox="0 0 760 300" width="100%" font-family="Arial" font-size="12">
+<defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#555"/></marker></defs>
+<g stroke="#555" stroke-width="1.4" fill="none" marker-end="url(#a)">
+<path d="M130,60 H200"/><path d="M340,60 H400"/><path d="M270,90 V150"/><path d="M270,200 V230" stroke-dasharray="4 3"/><path d="M540,60 H600"/><path d="M600,40 H540" stroke-dasharray="4 3"/></g>
+<rect x="10" y="30" width="120" height="60" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/><text x="70" y="55" text-anchor="middle" font-weight="bold">Finance user</text><text x="70" y="72" text-anchor="middle">Browser UI</text>
+<rect x="200" y="30" width="140" height="60" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/><text x="270" y="55" text-anchor="middle" font-weight="bold">Volopay API</text><text x="270" y="72" text-anchor="middle">/api/check, status</text>
+<rect x="400" y="30" width="140" height="60" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/><text x="470" y="55" text-anchor="middle" font-weight="bold">Partner adapter</text><text x="470" y="72" text-anchor="middle">one swappable file</text>
+<rect x="600" y="30" width="150" height="60" rx="8" fill="#ede7f6" stroke="#6a1b9a" stroke-width="2" stroke-dasharray="6 3"/><text x="675" y="55" text-anchor="middle" font-weight="bold">E-invoicing partner</text><text x="675" y="72" text-anchor="middle">SIMULATED (P-01..P-03)</text>
+<rect x="200" y="150" width="140" height="50" rx="8" fill="#e8f5e9" stroke="#2e7d32" stroke-width="2"/><text x="270" y="172" text-anchor="middle" font-weight="bold">Database</text><text x="270" y="188" text-anchor="middle">prototype: localStorage</text>
+<rect x="200" y="230" width="140" height="50" rx="8" fill="#f5f5f5" stroke="#777" stroke-width="2" stroke-dasharray="6 3"/><text x="270" y="252" text-anchor="middle" font-weight="bold">ERP / accounting</text><text x="270" y="268" text-anchor="middle">mock CSV import only</text>
+<rect x="600" y="150" width="150" height="50" rx="8" fill="#f5f5f5" stroke="#777" stroke-width="2" stroke-dasharray="6 3"/><text x="675" y="172" text-anchor="middle" font-weight="bold">Tax authority</text><text x="675" y="188" text-anchor="middle">not shown</text>
+<path d="M675,90 V150" stroke="#555" stroke-width="1.4" stroke-dasharray="4 3" fill="none" marker-end="url(#a)"/>
+<text x="10" y="130" fill="#2e7d32">Solid green = built and working</text><text x="10" y="148" fill="#6a1b9a">Dashed purple = simulated</text><text x="10" y="166" fill="#777">Dashed grey = proposed, not built</text>
+</svg>
+<p><b>How data moves.</b> The user fills an invoice in the browser, which stores it (browser storage in the prototype, Postgres in production). <b>Run checks</b> sends it to <code>/api/check</code>, the authoritative Volopay checks (V-01 to V-05). Only invoices that pass can be submitted. Submit calls the partner adapter, which calls the simulated provider endpoint. The provider returns accepted or rejected with a code. The API stores the response as a status event and the invoice page shows it in the timeline. <b>Where validation happens:</b> in the browser while typing (hints), on the Volopay API before sending (authoritative), and at the provider after sending (simulated rules).</p>
+<table><tr><th>Part</th><th>Built in this prototype</th><th>Proposed for production</th></tr>
+<tr><td>UI, checks, status timeline, payment matching, incoming match, CSV import</td><td>Built and working</td><td>Same, hardened, with real auth</td></tr>
+<tr><td>Database</td><td>Browser localStorage</td><td>Postgres with audit history</td></tr>
+<tr><td>E-invoicing provider</td><td>Simulated endpoint</td><td>Accredited provider via its API, behind the same adapter interface</td></tr>
+<tr><td>ERP / accounting link</td><td>Mock CSV import</td><td>Real connectors</td></tr>
+<tr><td>Tax authority</td><td>Not shown</td><td>Reached only through the provider</td></tr></table>
+
+<h2>3. Build vs partner decisions</h2>
+<p><b>Volopay builds:</b> invoice creation, pre-send validation, status tracking and error handling, the receive-side matching, collections matching, and the accounting connectors. These sit close to the finance user and are where Volopay differentiates. <b>The partner provides:</b> the legal link to the tax system. In the UAE only an accredited provider may submit, so a partner is required. The prototype hides the provider behind one interface (<code>PartnerAdapter</code>) so a real accredited provider can replace the simulator by swapping one file. This follows the Challenge 1 strategy of adding e-invoicing to the AR and AP products. <span class="todo">The named provider candidates come from the Challenge 1 research and should be inserted here.</span> The prototype does not name any provider as connected.</p>
+
+<h2>4. What works vs what is simulated</h2>
+<table><tr><th>Works</th><th>Simulated or not built</th></tr><tr><td>Create, edit and save invoices. Live hints. Server-side checks V-01 to V-05 with rule IDs and the field to fix. Blocked invoices cannot be submitted. Status timeline. Fix and resubmit. Payment recording and matching (short, over, exact). Incoming invoice matching and approval. CSV import to drafts. Reset sample data.</td><td>The provider, its responses, reference IDs and the 2 to 3 second delay. The tax authority. The accounting tool (CSV only). The payment (no money moves). Storage is per browser. No login. Rules marked assumed are invented for the demo.</td></tr></table>
+
+<h2>5. Tools, assumptions, limitations, next steps</h2>
+<p><b>Tools:</b> Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, browser localStorage. Built with Claude Code, deployed on <span class="todo">Vercel (add)</span>.</p>
+<p><b>Assumptions:</b> a TRN has 15 digits (secondary sources, not confirmed against the FTA); standard VAT is 5%; each line needs a VAT category; invoice numbers look like INV-0000 (invented). The Rules page marks every rule as sourced, assumed or simulated. The official KPMG/FTA field guidance could not be opened from the build environment, so the required-fields list covers a subset of the 51 mandatory fields and is not confirmed.</p>
+<p><b>Limitations:</b> single browser, no authentication, no multi-seller uniqueness, no PDF or XML output, no credit notes, no retry for temporary provider errors, English only, desktop-first.</p>
+<p><b>Next steps to launch:</b> (1) confirm rules against the FTA and Ministry of Finance sources; (2) select and contract an accredited provider and map the invoice model to its schema; (3) replace the simulator with the real adapter and handle async callbacks and retries; (4) move storage to a production database with audit trail; (5) add authentication and multi-tenant access; (6) build the accounting connectors; (7) security review and sandbox certification with the provider.</p>
+
+<h2>6. Where AI was used and how it was checked</h2>
+<p>Claude Code wrote the application code from the spec in the repository README, and drafted this document. Checks: the lint, type check and production build pass; every seed scenario (accept, blocked by checks, rejected then fixed and accepted), the payment match, incoming approval and CSV import were run end to end in a real browser; and rules from AI or secondary sources are labelled as assumed rather than stated as official. The author should re-verify the rules against official sources before relying on them.</p>
+</body></html>

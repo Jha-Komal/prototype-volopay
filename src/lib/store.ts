@@ -2,20 +2,24 @@ import { useSyncExternalStore } from "react";
 import type {
   CheckResult,
   Fix,
+  IncomingInvoice,
   Invoice,
+  Line,
   ProviderResponse,
   Status,
   StatusEvent,
 } from "./types";
-import { seedInvoices } from "./seed";
+import { seedIncoming, seedInvoices } from "./seed";
+import { invoiceTotals, round2 } from "./validate";
 
-const KEY = "volopay-einvoice-prototype-v1";
+const KEY = "volopay-einvoice-prototype-v2";
 
 interface State {
   invoices: Invoice[];
+  incoming: IncomingInvoice[];
 }
 
-const SERVER_STATE: State = { invoices: seedInvoices() };
+const SERVER_STATE: State = { invoices: seedInvoices(), incoming: seedIncoming() };
 let state: State = SERVER_STATE;
 let loaded = false;
 const listeners = new Set<() => void>();
@@ -27,7 +31,9 @@ function load() {
     const raw = window.localStorage.getItem(KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as State;
-      if (Array.isArray(parsed.invoices)) state = parsed;
+      if (Array.isArray(parsed.invoices)) {
+        state = { invoices: parsed.invoices, incoming: parsed.incoming ?? seedIncoming() };
+      }
     }
   } catch {
     /* ignore a broken saved copy and keep the sample data */
@@ -92,7 +98,7 @@ function evt(
 }
 
 function update(id: string, fn: (inv: Invoice) => Invoice) {
-  set({ invoices: state.invoices.map((i) => (i.id === id ? fn(i) : i)) });
+  set({ ...state, invoices: state.invoices.map((i) => (i.id === id ? fn(i) : i)) });
 }
 
 export function acceptedNumbers(exceptId?: string): string[] {
@@ -111,6 +117,7 @@ export function saveInvoice(next: Invoice, note = "Edited. Needs a new check.") 
   const exists = state.invoices.some((i) => i.id === next.id);
   if (!exists) {
     set({
+      ...state,
       invoices: [
         {
           ...next,
@@ -228,5 +235,41 @@ export function applyFix(id: string, fix: Fix) {
 
 export function resetSampleData() {
   loaded = true;
-  set({ invoices: seedInvoices() });
+  set({ invoices: seedInvoices(), incoming: seedIncoming() });
 }
+
+/** Record a payment against an accepted invoice and match it to the invoice total. */
+export function recordPayment(id: string, amount: number, reference: string) {
+  load();
+  update(id, (prev) => {
+    const gross = invoiceTotals(prev).gross;
+    const difference = round2(amount - gross);
+    const outcome = difference === 0 ? "matched" : difference < 0 ? "short" : "over";
+    const msg =
+      outcome === "matched"
+        ? `Payment of ${amount.toFixed(2)} AED matched the invoice total.`
+        : outcome === "short"
+          ? `Payment is ${Math.abs(difference).toFixed(2)} AED short of the invoice total.`
+          : `Payment is ${difference.toFixed(2)} AED above the invoice total.`;
+    return {
+      ...prev,
+      payment: { amount, paidAt: new Date().toISOString(), reference, outcome, difference },
+      events: [...prev.events, { ...evt(prev.status, msg), source: "volopay" as const }],
+    };
+  });
+}
+
+export function addImported(invoices: Invoice[]) {
+  load();
+  set({ ...state, invoices: [...invoices, ...state.invoices] });
+}
+
+export function decideIncoming(id: string, decision: "approved" | "rejected", note: string) {
+  load();
+  set({
+    ...state,
+    incoming: state.incoming.map((i) => (i.id === id ? { ...i, status: decision, decisionNote: note } : i)),
+  });
+}
+
+export type { Line };

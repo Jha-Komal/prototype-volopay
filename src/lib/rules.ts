@@ -2,7 +2,7 @@ export type Basis = "sourced" | "assumed" | "simulated";
 
 export interface Rule {
   id: string;
-  layer: "Volopay check" | "Simulated provider";
+  layer: "Volopay check" | "Simulated provider" | "Incoming match";
   title: string;
   detail: string;
   basis: Basis;
@@ -87,4 +87,12 @@ export const RULES: Rule[] = [
     basis: "simulated",
     note: "Invented for the demo. A real provider would look the buyer up on its network.",
   },
-];
+  {
+    id: "M-01 to M-05",
+    layer: "Incoming match",
+    title: "Match a received invoice to the supplier list and purchase order",
+    detail: "Supplier TRN well-formed, supplier approved, PO exists for that supplier, total within PO amount, VAT is 5% of net.",
+    basis: "assumed",
+    note: "Invented for the demo to illustrate the receive side. Real matching policy would come from each customer's procurement rules.",
+  },
+]

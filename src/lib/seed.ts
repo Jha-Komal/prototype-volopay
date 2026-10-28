@@ -1,4 +1,4 @@
-import type { Invoice, Line, Party } from "./types";
+import type { IncomingInvoice, Invoice, Line, Party, PurchaseOrder } from "./types";
 
 /** All companies, addresses and tax numbers below are fictional. */
 export const SELLER: Party = {
@@ -67,7 +67,7 @@ function base(
 
 export const SCENARIOS: { id: string; title: string; blurb: string }[] = [
   { id: "inv-1001", title: "INV-1001: the happy path", blurb: "Clean invoice. Check it, submit it, watch it get accepted." },
-  { id: "inv-1002", title: "INV-1002: caught before sending", blurb: "Buyer TRN is one digit short. Volopay blocks it and offers a fix." },
+  { id: "inv-1002", title: "INV-1002: caught before sending", blurb: "Buyer TRN is one digit short. Volopay blocks it and points you to the field to fix." },
   { id: "inv-1003", title: "INV-1003: wrong VAT", blurb: "One line has no VAT category and a zero-rated line carries 5%." },
   { id: "inv-1004", title: "INV-0999: rejected by the provider", blurb: "Passes our checks, but the provider already holds this number." },
   { id: "inv-1005", title: "INV-1005: buyer not on the network", blurb: "Passes our checks, but the provider cannot find the buyer." },
@@ -98,3 +98,54 @@ export function seedInvoices(): Invoice[] {
 export function emptyLine(id: string): Line {
   return { id, description: "", quantity: 1, unit: "Each", unitPrice: 0, vatCode: "", vatRate: 5 };
 }
+
+/** Fictional purchase orders held in the buyer's (Volopay customer's) system. */
+export const PURCHASE_ORDERS: PurchaseOrder[] = [
+  { number: "PO-5001", supplierTrn: "100111222333003", supplierName: "Sample Logistics LLC", amount: 12600 },
+  { number: "PO-5002", supplierTrn: "100444555666003", supplierName: "Demo Office Supplies FZE", amount: 3150 },
+];
+
+export function seedIncoming(): IncomingInvoice[] {
+  const at = "2026-10-27T14:00:00.000Z";
+  return [
+    {
+      id: "in-1",
+      number: "SL-2210",
+      receivedAt: at,
+      supplier: { name: "Sample Logistics LLC", trn: "100111222333003", address: "Warehouse 9, Sample Logistics Park, Dubai, UAE" },
+      poNumber: "PO-5001",
+      description: "Freight and handling, October",
+      net: 12000,
+      vat: 600,
+      status: "received",
+    },
+    {
+      id: "in-2",
+      number: "DO-0457",
+      receivedAt: at,
+      supplier: { name: "Demo Office Supplies FZE", trn: "100444555666003", address: "Unit 21, Demo Free Zone, Ajman, UAE" },
+      poNumber: "PO-5002",
+      description: "Office supplies, bulk order",
+      net: 4000,
+      vat: 200,
+      status: "received",
+    },
+    {
+      id: "in-3",
+      number: "NS-0031",
+      receivedAt: at,
+      supplier: { name: "New Supplier Trading LLC", trn: "100777888999003", address: "Office 3, Example Business Bay, Dubai, UAE" },
+      poNumber: "PO-5099",
+      description: "Consulting retainer",
+      net: 2000,
+      vat: 100,
+      status: "received",
+    },
+  ];
+}
+
+export const SAMPLE_CSV = `invoice_number,issue_date,due_date,buyer_name,buyer_trn,buyer_address,description,quantity,unit,unit_price,vat_code,vat_rate
+INV-2001,2026-10-28,2026-11-27,Sample Supplies FZE,100500600700003,"Unit 4, Sample Free Zone, Sharjah, UAE",Monthly retainer,1,Month,4500,S,5
+INV-2001,2026-10-28,2026-11-27,Sample Supplies FZE,100500600700003,"Unit 4, Sample Free Zone, Sharjah, UAE",Setup fee,1,Each,800,S,5
+INV-2002,2026-10-28,2026-11-27,Demo Retail LLC,10080090010003,"Shop 7, Demo Mall, Abu Dhabi, UAE",Support hours,12,Hour,150,,5
+`;

@@ -8,7 +8,7 @@ import { acceptedNumbers, newInvoiceId, saveInvoice, useInvoice } from "@/lib/st
 import { defaultRate, formatAed, invoiceTotals, lineNet, nextFreeNumber, runChecks, VAT_OPTIONS } from "@/lib/validate";
 import { btnGhost, btnPrimary, card } from "./ui";
 
-const input = "w-full rounded-md border border-zinc-300 bg-white px-2.5 py-1.5 text-sm";
+const input = "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200";
 const bad = "border-red-500 bg-red-50";
 
 function blank(): Invoice {
@@ -41,7 +41,7 @@ export default function InvoiceForm({ id }: { id?: string }) {
     () => (current ? runChecks(current, { acceptedNumbers: acceptedNumbers(current.id) }).issues : []),
     [current],
   );
-  if (!current) return <p className="text-sm text-zinc-500">Invoice not found.</p>;
+  if (!current) return <p className="text-sm text-slate-500">Invoice not found.</p>;
 
   const byField = new Map(issues.map((i) => [i.field, i]));
   const err = (f: string) => byField.get(f);
@@ -65,7 +65,7 @@ export default function InvoiceForm({ id }: { id?: string }) {
   return (
     <div className="space-y-5">
       <h1 className="text-xl font-semibold">{id ? `Edit ${current.number}` : "New invoice"}</h1>
-      <p className="text-sm text-zinc-600">
+      <p className="text-sm text-slate-600">
         Hints below update as you type (rules shown with their IDs). The authoritative check runs on the server when you press Check on the invoice page.
       </p>
 
@@ -73,15 +73,15 @@ export default function InvoiceForm({ id }: { id?: string }) {
         {(["seller", "buyer"] as const).map((k) => (
           <section key={k} className={card}>
             <h2 className="mb-3 text-sm font-semibold capitalize">{k}</h2>
-            <label className="block text-xs text-zinc-600">Name
+            <label className="block text-xs text-slate-600">Name
               <input className={`${input} ${err(`${k}.name`) ? bad : ""}`} value={current[k].name} onChange={(e) => party(k, { name: e.target.value })} />
               {msg(`${k}.name`)}
             </label>
-            <label className="mt-2 block text-xs text-zinc-600">TRN (15 digits)
+            <label className="mt-2 block text-xs text-slate-600">TRN (15 digits)
               <input className={`${input} font-mono ${err(`${k}.trn`) ? bad : ""}`} value={current[k].trn} onChange={(e) => party(k, { trn: e.target.value })} />
               {msg(`${k}.trn`)}
             </label>
-            <label className="mt-2 block text-xs text-zinc-600">Address
+            <label className="mt-2 block text-xs text-slate-600">Address
               <input className={`${input} ${err(`${k}.address`) ? bad : ""}`} value={current[k].address} onChange={(e) => party(k, { address: e.target.value })} />
               {msg(`${k}.address`)}
             </label>
@@ -90,27 +90,27 @@ export default function InvoiceForm({ id }: { id?: string }) {
       </div>
 
       <section className={`${card} grid gap-3 sm:grid-cols-4`}>
-        <label className="text-xs text-zinc-600">Invoice number
+        <label className="text-xs text-slate-600">Invoice number
           <input className={`${input} font-mono ${err("number") ? bad : ""}`} value={current.number} onChange={(e) => set((i) => ({ ...i, number: e.target.value }))} />
           {msg("number")}
         </label>
-        <label className="text-xs text-zinc-600">Issue date
+        <label className="text-xs text-slate-600">Issue date
           <input type="date" className={`${input} ${err("issueDate") ? bad : ""}`} value={current.issueDate} onChange={(e) => set((i) => ({ ...i, issueDate: e.target.value }))} />
           {msg("issueDate")}
         </label>
-        <label className="text-xs text-zinc-600">Due date
+        <label className="text-xs text-slate-600">Due date
           <input type="date" className={`${input} ${err("dueDate") ? bad : ""}`} value={current.dueDate} onChange={(e) => set((i) => ({ ...i, dueDate: e.target.value }))} />
           {msg("dueDate")}
         </label>
-        <label className="text-xs text-zinc-600">Currency
-          <input className={`${input} bg-zinc-100`} value="AED" readOnly />
+        <label className="text-xs text-slate-600">Currency
+          <input className={`${input} bg-slate-100`} value="AED" readOnly />
         </label>
       </section>
 
       <section className={`${card} overflow-x-auto`}>
         <h2 className="mb-3 text-sm font-semibold">Lines</h2>
         <table className="w-full min-w-[760px] text-sm">
-          <thead className="text-left text-xs text-zinc-500">
+          <thead className="text-left text-xs text-slate-500">
             <tr><th>Description</th><th className="w-16">Qty</th><th className="w-20">Unit</th><th className="w-28">Unit price</th><th className="w-40">VAT category</th><th className="w-20">Rate %</th><th className="w-28 text-right">Net</th><th className="w-8" /></tr>
           </thead>
           <tbody>
@@ -132,7 +132,7 @@ export default function InvoiceForm({ id }: { id?: string }) {
                 </td>
                 <td className="pr-2"><input type="number" className={`${input} ${err(`lines.${l.id}.vatRate`) ? bad : ""}`} value={l.vatRate} onChange={(e) => line(l.id, { vatRate: Number(e.target.value) })} />{msg(`lines.${l.id}.vatRate`)}</td>
                 <td className="py-1.5 text-right tabular-nums">{formatAed(lineNet(l))}</td>
-                <td><button title="Remove line" className="px-1 text-zinc-400 hover:text-red-600" onClick={() => set((i) => ({ ...i, lines: i.lines.filter((x) => x.id !== l.id) }))}>×</button></td>
+                <td><button title="Remove line" className="px-1 text-slate-400 hover:text-red-600" onClick={() => set((i) => ({ ...i, lines: i.lines.filter((x) => x.id !== l.id) }))}>×</button></td>
               </tr>
             ))}
           </tbody>
@@ -149,7 +149,7 @@ export default function InvoiceForm({ id }: { id?: string }) {
       <div className="flex items-center gap-3">
         <button className={btnPrimary} onClick={save}>Save draft</button>
         <button className={btnGhost} onClick={() => router.back()}>Cancel</button>
-        <span className="text-xs text-zinc-500">{issues.length ? `${issues.length} hint${issues.length === 1 ? "" : "s"} to resolve before it can be sent` : "No issues found locally"}</span>
+        <span className="text-xs text-slate-500">{issues.length ? `${issues.length} hint${issues.length === 1 ? "" : "s"} to resolve before it can be sent` : "No issues found locally"}</span>
       </div>
     </div>
   );
