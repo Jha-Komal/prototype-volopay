@@ -10,7 +10,7 @@ table{border-collapse:collapse;width:100%;font-size:9.5pt}td,th{border:1px solid
 <p>Challenge 3 of the Founder's Office assignment. Everything that touches a provider, tax authority or accounting tool is <b>simulated</b>.</p>
 
 <h2>1. Live prototype</h2>
-<p class="link">Open the prototype: <a href="LIVE_URL_HERE"><span class="todo">LIVE_URL_HERE</span></a></p>
+<p class="link">Open the prototype: <a href="https://prototype-volopay.vercel.app/">https://prototype-volopay.vercel.app/</a></p>
 <p>Source code: <a href="https://github.com/Jha-Komal/prototype-volopay">github.com/Jha-Komal/prototype-volopay</a>. It opens in a browser with no download or setup. Use <b>Reset sample data</b> on the Invoices page to start again. Demo path: INV-1001 (happy path), INV-1002 (blocked by V-01, fix the TRN in the editor), INV-1003 (blocked by V-02 and V-03, one-click fixes), INV-0999 (rejected, DUPLICATE_INVOICE), INV-1005 (rejected, BUYER_NOT_FOUND). After an invoice is accepted, record a payment on its page to see matching.</p>
 
 <h2>2. Architecture</h2>
@@ -43,7 +43,7 @@ table{border-collapse:collapse;width:100%;font-size:9.5pt}td,th{border:1px solid
 <table><tr><th>Works</th><th>Simulated or not built</th></tr><tr><td>Create, edit and save invoices. Live hints. Server-side checks V-01 to V-05 with rule IDs and the field to fix. Blocked invoices cannot be submitted. Status timeline. Fix and resubmit. Payment recording and matching (short, over, exact). Incoming invoice matching and approval. CSV import to drafts. Reset sample data.</td><td>The provider, its responses, reference IDs and the 2 to 3 second delay. The tax authority. The accounting tool (CSV only). The payment (no money moves). Storage is per browser. No login. Rules marked assumed are invented for the demo.</td></tr></table>
 
 <h2>5. Tools, assumptions, limitations, next steps</h2>
-<p><b>Tools:</b> Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, browser localStorage. Built with Claude Code, deployed on <span class="todo">Vercel (add)</span>.</p>
+<p><b>Tools:</b> Next.js 16 (App Router), React 19, TypeScript, Tailwind 4, browser localStorage. Built with Claude Code, deployed on Vercel.</p>
 <p><b>Assumptions:</b> a TRN has 15 digits (secondary sources, not confirmed against the FTA); standard VAT is 5%; each line needs a VAT category; invoice numbers look like INV-0000 (invented). The Rules page marks every rule as sourced, assumed or simulated. The official KPMG/FTA field guidance could not be opened from the build environment, so the required-fields list covers a subset of the 51 mandatory fields and is not confirmed.</p>
 <p><b>Limitations:</b> single browser, no authentication, no multi-seller uniqueness, no PDF or XML output, no credit notes, no retry for temporary provider errors, English only, desktop-first.</p>
 <p><b>Next steps to launch:</b> (1) confirm rules against the FTA and Ministry of Finance sources; (2) select and contract an accredited provider and map the invoice model to its schema; (3) replace the simulator with the real adapter and handle async callbacks and retries; (4) move storage to a production database with audit trail; (5) add authentication and multi-tenant access; (6) build the accounting connectors; (7) security review and sandbox certification with the provider.</p>
